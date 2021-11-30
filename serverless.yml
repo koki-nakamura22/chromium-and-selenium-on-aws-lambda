@@ -1,0 +1,40 @@
+service: selenium-on-aws-lambda
+
+frameworkVersion: '2'
+
+provider:
+  name: aws
+  runtime: python3.7
+  lambdaHashingVersion: 20201221
+  profile: serverless-admin
+  region: ap-northeast-1
+  deploymentBucket:
+    name: selenium-on-aws-lambda-deployment-bucket
+    maxPreviousDeploymentArtifacts: 3
+
+package:
+  individually: true
+  exclude:
+    - README.md
+    - requirements.txt
+    - layers/**
+
+layers:
+  chromedriver:
+    path: layers
+
+functions:
+  func:
+    handler: handler.func
+    memorySize: 1024
+    timeout: 300
+    layers:
+      - { Ref: PythonRequirementsLambdaLayer }
+      - { Ref: ChromedriverLambdaLayer }
+
+plugins:
+  - serverless-python-requirements
+
+custom:
+  pythonRequirements:
+    layer: true
