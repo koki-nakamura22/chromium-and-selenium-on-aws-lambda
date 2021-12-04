@@ -4,6 +4,7 @@ frameworkVersion: '2'
 
 provider:
   name: aws
+  stage: ${opt:stage, "dev"}
   runtime: python3.7
   lambdaHashingVersion: 20201221
   profile: serverless-admin
@@ -18,10 +19,19 @@ package:
     - README.md
     - requirements.txt
     - layers/**
+    - layers.zip
 
 layers:
   chromedriver:
-    path: layers
+    name: chromedriver
+    description: A chromedriver and a headless-chromium binary files.
+    path: layers/chromedriver
+    compatibleRuntimes: ${self:provider.runtime}
+  selenium:
+    name: selenium
+    description: v 3.14.0
+    path: layers/selenium
+    compatibleRuntimes: ${self:provider.runtime}
 
 functions:
   func:
@@ -29,12 +39,5 @@ functions:
     memorySize: 1024
     timeout: 300
     layers:
-      - { Ref: PythonRequirementsLambdaLayer }
       - { Ref: ChromedriverLambdaLayer }
-
-plugins:
-  - serverless-python-requirements
-
-custom:
-  pythonRequirements:
-    layer: true
+      - { Ref: SeleniumLambdaLayer }
