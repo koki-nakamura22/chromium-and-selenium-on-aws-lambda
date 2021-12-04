@@ -1,7 +1,11 @@
+import datetime
 import json
+import os
+import boto3
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 
+s3 = boto3.resource('s3')
 
 def func(event, context):
     try:
@@ -25,6 +29,21 @@ def func(event, context):
         search_bar.send_keys("getting started with python")
         search_bar.send_keys(Keys.RETURN)
 
+        # Save a screenshot to the tmp directory
+        try:
+            now_jst = datetime.datetime.now(
+                datetime.timezone(datetime.timedelta(hours=9)))
+            filename = f"{now_jst.strftime('%Y%m%d_%H%M%S')}.png"
+            filepath = f"/tmp/{filename}.png"
+            driver.save_screenshot(filepath)
+            # Copy the screenshot file to S3
+            bucket_name = "selenium-on-aws-lambda-screenshots"
+            s3.meta.client.upload_file(filepath, bucket_name, filename)
+        except:
+            if "filepath" in locals():
+                if os.path.exists(filepath):
+                    os.remove(filepath)
+
         body = {
             "title": driver.title,
             "currentURL": driver.current_url
@@ -38,5 +57,5 @@ def func(event, context):
         return response
 
     finally:
-        if 'driver' in locals():
+        if "driver" in locals():
             driver.quit()

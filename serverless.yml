@@ -41,3 +41,33 @@ functions:
     layers:
       - { Ref: ChromedriverLambdaLayer }
       - { Ref: SeleniumLambdaLayer }
+    role: LambdaS3PutObject
+
+resources:
+  Resources:
+    LambdaS3PutObject:
+      Type: AWS::IAM::Role
+      Properties:
+        RoleName: LambdaS3PutObject
+        AssumeRolePolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Principal:
+                Service:
+                  - lambda.amazonaws.com
+              Action: sts:AssumeRole
+        Policies:
+          - PolicyName: LambdaS3PutObjectPolicy
+            PolicyDocument:
+              Version: '2012-10-17'
+              Statement:
+                - Effect: Allow
+                  Action:
+                    - "logs:CreateLogGroup"
+                    - "logs:CreateLogStream"
+                    - "logs:PutLogEvents"
+                    - "s3:PutObject*"
+                  Resource:
+                    - "arn:aws:logs:*:*:log-group:/aws/*"
+                    - "arn:aws:s3:::selenium-on-aws-lambda-screenshots/*"

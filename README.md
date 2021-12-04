@@ -12,6 +12,8 @@
 unzip layers.zip
 ```
 
+Creating a selenium-on-aws-lambda-screenshots bucket on S3 for saving screenshots.
+
 ## Deploy
 ```sh
 sls deploy -v
